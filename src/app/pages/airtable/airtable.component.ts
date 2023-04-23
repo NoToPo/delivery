@@ -228,6 +228,9 @@ export class AirtableComponent implements OnInit {
     let urlImages: string[] = [];
     this.filterImages = [];
 
+    console.log(this.listOfData);
+    
+
     this.listOfData.forEach(item => {
       urlImages = [];
       item.Image.forEach((image: string) => {
@@ -263,7 +266,7 @@ export class AirtableComponent implements OnInit {
   }
 
   getImageById(idData: any) {
-    return this.filterImages.find(image => image.uid === idData).urls;
+    return this.filterImages.find(image => image.uid === idData)?.urls;
   }
 
   updateImageById(idData: string, Image: any) {
@@ -311,12 +314,12 @@ export class AirtableComponent implements OnInit {
 
   countNotesByIdData(idData: string): number {
     let notes = this.getNotesByIdData(idData);
-    return notes.length;
+    return notes?.length;
   }
 
   countImagesByIdData(idData: string): number {
     let images = this.getImageById(idData);
-    return images.length;
+    return images?.length;
   }
 
   handleSubmit(id_data: number): void {
