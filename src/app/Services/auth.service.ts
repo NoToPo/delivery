@@ -1,6 +1,7 @@
-import { Injectable, TemplateRef, ViewChild } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { UserRole } from '../constants/user-role';
 import { HttpServerService } from './http-server.service';
 
@@ -8,7 +9,9 @@ import { HttpServerService } from './http-server.service';
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private router: Router, private httpServer: HttpServerService) { }
+  constructor(private router: Router,
+    private httpServer: HttpServerService,    
+    private message: NzMessageService,) { }
 
   public setToken(token: string) {
     if (!token) {
@@ -53,14 +56,21 @@ export class AuthService {
   }
 
   public login(username: string, password: string, backUrl: string): void {
-    this.httpServer.Login(username, password).subscribe(data => {
-      const token = data?.token;
-      if (!!username && !!password && !!token) {
-        this.setToken(token);
-        this.router.navigate([backUrl]);
+    this.httpServer.Login(username, password).subscribe((data: any) => {
+      if (data && data.status === true) {
+        const token = data?.token;
+        if (!!username && !!password && !!token){
+          this.setToken(token);
+          this.router.navigate([backUrl]);
+        }
+        this.message.success('Đăng nhập thành công!');
       } else {
+        this.message.error('Đăng nhập thất bại!');
         this.login(username, password, backUrl);
       }
+    },
+    erorr => {
+      this.message.error('Đăng nhập thất bại!');
     });
   }
 

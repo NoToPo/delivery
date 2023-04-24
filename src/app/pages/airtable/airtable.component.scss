@@ -70,8 +70,17 @@ nz-divider {
   display: block;
 }
 
-.ant-advanced-search-form-dropdown{
+.ant-advanced-search-form-dropdown {
   padding: 20px;
   background-color: white;
   border: 1px solid #d9d9d9;
+  text-align: left;
+  min-width: 500px;
+}
+
+.value-search {
+  border: 1px solid #d9d9d9;
+  background-color: white;
+  min-width: 460px;
+  white-space: nowrap;
 }

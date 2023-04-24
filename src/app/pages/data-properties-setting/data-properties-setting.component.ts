@@ -5,6 +5,7 @@ import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, ValidationErr
 import { Observable, Observer } from 'rxjs';
 import { NzUploadFile, NzUploadXHRArgs } from 'ng-zorro-antd/upload';
 import { Urlserver } from 'src/app/constants/urlserver';
+import { NzTableQueryParams } from 'ng-zorro-antd/table';
 
 
 @Component({
@@ -15,6 +16,7 @@ import { Urlserver } from 'src/app/constants/urlserver';
 export class DataPropertiesSettingComponent {
   validateForm!: UntypedFormGroup;
   validateFormEdit!: UntypedFormGroup;
+  validateFormSearch!: UntypedFormGroup;
   filterFurniture: any[] = [];
   filterStatus: any[] = [];
   filterNameProject: any[] = [];
@@ -24,7 +26,7 @@ export class DataPropertiesSettingComponent {
   total = 1;
   loadingData = true;
   uploading = false;
-  pageSize = 1000;
+  pageSize = 18;
   pageIndex = 1;
   idDataUploadImage: any;
   filterImages: any[] = [];
@@ -55,6 +57,17 @@ export class DataPropertiesSettingComponent {
     { id: "Name_Type", name: "Tên loại", placeholder: "Chọn loại", type: "select", valueSelect: this.filterTypeProject },
     { id: "id_name_project", name: "Tên dự án", placeholder: "Chọn dự án", type: "select", valueSelect: this.filterNameProject }
   ]
+
+  controlsSearch = [
+    { id: "id_name_project", name: "Tên dự án", placeholder: "Chọn dự án", type: "select", valueSelect: this.filterNameProject, searchable: true },
+    { id: "Code", name: "Mã KH", placeholder: "" },
+    { id: "Phone", name: "Số điện thoại", placeholder: "" },
+    { id: "Bed", name: "Giường", placeholder: "" },
+    { id: "Status", name: "Trạng thái", placeholder: "Chọn trạng thái", type: "select", valueSelect: this.filterStatus },
+    { id: "Furniture", name: "Nội thất", placeholder: "Chọn nội thất", type: "select", valueSelect: this.filterFurniture },
+    { id: "Bathroom", name: "Phòng tắm", placeholder: "" },
+  ]
+  controlArraySearch: Array<{ index: number; show: boolean; id: string; name: string, placeholder: string, type: string, valueSelect: any, searchable: boolean }> = [];
   controlArray: Array<{ index: number; show: boolean; id: string; name: string, placeholder: string, type: string, valueSelect: any }> = [];
   controlArrayEdit: Array<{ index: number; show: boolean; id: string; name: string, placeholder: string, type: string, valueSelect: any }> = [];
   isCollapse = true;
@@ -77,7 +90,8 @@ export class DataPropertiesSettingComponent {
   isVisibleModalImage = false;
   currentRecord: any;
 
-  selectedValue = 1;
+  searchValue: Array<{ id: string, value: string }> = [];
+  visibleDropdownSearch = false;
 
   resetForm(): void {
     this.validateForm.reset();
@@ -94,6 +108,22 @@ export class DataPropertiesSettingComponent {
 
     this.validateForm = this.fb.group({});
     this.validateFormEdit = this.fb.group({});
+
+    this.validateFormSearch = this.fb.group({});
+    for (let i = 0; i < this.controlsSearch.length; i++) {
+      this.controlArraySearch.push({ index: i, show: true, id: this.controlsSearch[i].id, name: this.controlsSearch[i].name, placeholder: this.controlsSearch[i].placeholder, type: this.controlsSearch[i].type ?? "default", valueSelect: this.controlsSearch[i].valueSelect, searchable: this.controlsSearch[i].searchable ?? false });
+      this.validateFormSearch.addControl(`${this.controls[i].id}`, new UntypedFormControl());
+    }
+    this.validateFormSearch = this.fb.group({
+      id_name_project: [null, [Validators.required]],
+      Code: [''],
+      Phone: [''],
+      Status: [''],
+      Bed: [''],
+      Furniture: [''],
+      Bathroom: [''],
+    });
+
     
     for (let i = 0; i < this.controls.length; i++) {
       this.controlArray.push({ index: i, show: true, id: this.controls[i].id, name: this.controls[i].name, placeholder: this.controls[i].placeholder, type: this.controls[i].type ?? "default", valueSelect: this.controls[i].valueSelect });
@@ -119,10 +149,19 @@ export class DataPropertiesSettingComponent {
       this.loadingData = false;
       this.total = data.total_data;
       this.listOfData = data.result;
+      this.pageIndex = data.page;
       
       this.makeFilterImages();
       this.makeFilterNotes();
     });
+  }
+
+  onQueryParamsChange(params: NzTableQueryParams): void {
+    const { pageSize, pageIndex, sort, filter } = params;
+    const currentSort = sort.find(item => item.value !== null);
+    const sortField = (currentSort && currentSort.key) || null;
+    const sortOrder = (currentSort && currentSort.value) || null;
+    this.loadDataFromServer(pageIndex, pageSize, sortField);
   }
 
   public loadListOfColumn(): void {
@@ -143,9 +182,7 @@ export class DataPropertiesSettingComponent {
     });
 
     this.httpServerService.getNameProject().subscribe(data => {
-      if (data && data.success) {
-        console.log(data);
-        
+      if (data && data.success) {        
         data.result.forEach((element: any) => {
           this.filterNameProject.push({ text: element.name_project, value: element.id });
         })
@@ -212,8 +249,7 @@ export class DataPropertiesSettingComponent {
 
   handleSubmit(id_data: number): void {
     const content = this.filterAddNotes[id_data];
-    console.log(content);
-    
+
     if (!content) {
       return;
     }
@@ -247,6 +283,7 @@ export class DataPropertiesSettingComponent {
   makeFilterImages(): void {
     let images: any[] = [];
     let urlImages: string[] = [];
+    this.filterImages = [];
 
     this.listOfData.forEach(item => {
       urlImages = [];
@@ -265,8 +302,8 @@ export class DataPropertiesSettingComponent {
   }
 
   makeFilterNotes(): void {
-    console.log(this.listOfData);
-    let addNotes: any[] = [];
+    this.filterNotes = [];
+    this.filterAddNotes = [];
 
     this.listOfData.forEach(item => {
       if (Array.isArray(item.Note)){
@@ -294,8 +331,6 @@ export class DataPropertiesSettingComponent {
   }
 
   setData(id: string, data: any): void {
-    console.log(data);
-
     this.idDataUploadImage = id;
   }
 
@@ -305,7 +340,7 @@ export class DataPropertiesSettingComponent {
 
   pupolateData(data: any): void {
     this.controls.forEach(control => {
-      this.validateFormEdit.controls[control.id].setValue(data[control.id].toString());
+      this.validateFormEdit.controls[control.id].setValue(data[control.id]?.toString());
     })
     
     this.validateFormEdit.controls['id_data_properties'].setValue(data.id);
@@ -365,10 +400,7 @@ export class DataPropertiesSettingComponent {
   submitFormEdit(): void {
     if (this.validateFormEdit.valid) {
       const formData = new FormData();
-      let values = this.validateFormEdit.value;
-
-      console.log(values);
-      
+      let values = this.validateFormEdit.value;      
 
       this.controls.forEach((control: any) => {
         if (control.type === 'select') {
@@ -400,5 +432,68 @@ export class DataPropertiesSettingComponent {
         }
       });
     }
+  }
+
+  submitFormSearch(): void {
+    if (this.validateFormSearch.valid) {
+      let values = this.validateFormSearch.value;
+      this.httpServerService.sortSearchData(values)
+        .subscribe(data => {
+          if (data && data.success === true) {
+            this.listOfData = data.result;
+            this.makeFilterImages();
+            this.makeFilterNotes();
+
+            this.visibleDropdownSearch = false;
+          } else {
+            this.listOfData = [];
+          }
+        },
+          error => {
+            this.message.error("Không tìm thấy dữ liệu");
+            this.listOfData = [];
+            this.visibleDropdownSearch = false;
+          });
+
+    } else {
+      Object.values(this.validateForm.controls).forEach(control => {
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity({ onlySelf: true });
+        }
+      });
+    }
+  }
+
+  makeSearchValue(): void {
+    let values = this.validateFormSearch.value;
+    let tags: any[] = [];
+
+    this.controls.forEach((item: any) => {
+      switch (item.type) {
+        case 'select':
+          if (values[item.id]) {
+            tags.push({ id: item.id, value: item.name + ': ' + this.getValueById(item.valueSelect, values[item.id]) });
+          }
+          break;
+        default:
+          if (values[item.id]) {
+            tags.push({ id: item.id, value: item.name + ': ' + values[item.id] });
+          }
+          break;
+      }
+    })
+
+    this.searchValue = tags;
+  }
+
+  openDropdownSearch(): void {
+    this.visibleDropdownSearch = true;
+  }
+
+  reloadData(): void {
+    this.searchValue = [];
+
+    this.loadDataFromServer(this.pageIndex, this.pageSize, null);
   }
 }

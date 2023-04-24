@@ -20,7 +20,7 @@ export class AirtableComponent implements OnInit {
   listOfData: any[] = [];
   loadingData = true;
   uploading = false;
-  pageSize = 1000;
+  pageSize = 18;
   pageIndex = 1;
   filterFurniture: any[] = [];
   filterStatus: any[] = [];
@@ -28,7 +28,7 @@ export class AirtableComponent implements OnInit {
   filterTypeProject: any[] = [];
   filterImages: any[] = [];
   visibleSearch = false;
-  searchValue = '';
+  searchValue: Array<{ id: string, value: string }> = [];
   visibleDropdownSearch = false;
 
   currentRecord: any;
@@ -52,7 +52,7 @@ export class AirtableComponent implements OnInit {
 
   validateForm!: UntypedFormGroup;
   controls = [
-    { id: "id_name_project", name: "Tên dự án", placeholder: "Chọn dự án", type: "select", valueSelect: this.filterNameProject },
+    { id: "id_name_project", name: "Tên dự án", placeholder: "Chọn dự án", type: "select", valueSelect: this.filterNameProject, searchable: true },
     { id: "Code", name: "Mã KH", placeholder: "" },
     { id: "Phone", name: "Số điện thoại", placeholder: "" },
     { id: "Bed", name: "Giường", placeholder: "" },
@@ -60,7 +60,7 @@ export class AirtableComponent implements OnInit {
     { id: "Furniture", name: "Nội thất", placeholder: "Chọn nội thất", type: "select", valueSelect: this.filterFurniture },
     { id: "Bathroom", name: "Phòng tắm", placeholder: "" },
   ]
-  controlArray: Array<{ index: number; show: boolean; id: string; name: string, placeholder: string, type: string, valueSelect: any }> = [];
+  controlArray: Array<{ index: number; show: boolean; id: string; name: string, placeholder: string, type: string, valueSelect: any, searchable: boolean }> = [];
 
   data: any[] = [];
   submitting = false;
@@ -86,11 +86,11 @@ export class AirtableComponent implements OnInit {
     this.loadListOfColumn();
     this.validateForm = this.fb.group({});
     for (let i = 0; i < this.controls.length; i++) {
-      this.controlArray.push({ index: i, show: true, id: this.controls[i].id, name: this.controls[i].name, placeholder: this.controls[i].placeholder, type: this.controls[i].type ?? "default", valueSelect: this.controls[i].valueSelect });
+      this.controlArray.push({ index: i, show: true, id: this.controls[i].id, name: this.controls[i].name, placeholder: this.controls[i].placeholder, type: this.controls[i].type ?? "default", valueSelect: this.controls[i].valueSelect, searchable: this.controls[i].searchable ?? false });
       this.validateForm.addControl(`${this.controls[i].id}`, new UntypedFormControl());
     }
     this.validateForm = this.fb.group({
-      id_name_project: [null, [Validators.required]],
+      id_name_project: ['', [Validators.required]],
       Code: [''],
       Phone: [''],
       Status: [''],
@@ -100,13 +100,6 @@ export class AirtableComponent implements OnInit {
     });
     // Get the list of datas
     this.loadDataFromServer(this.pageIndex, this.pageSize, null, null, []);
-  }
-
-  public clearData(): void {
-    this.filterFurniture = [];
-    this.filterStatus = [];
-    this.filterNameProject = [];
-    this.filterTypeProject = [];
   }
 
   getValueById(list: any[], id: string): string {
@@ -161,8 +154,9 @@ export class AirtableComponent implements OnInit {
       this.loadingData = false;
       this.total = data.total_data;
       this.listOfData = data.result;
+      this.pageIndex = data.page;
       this.makeFilterImages();
-      this.makeFilterNotes();
+      this.makeFilterNotes();      
     });
   }
 
@@ -175,7 +169,7 @@ export class AirtableComponent implements OnInit {
   }
 
   reset(): void {
-    this.searchValue = '';
+    this.searchValue = [];
   }
 
   viewPhone(data: any): void {
@@ -201,8 +195,6 @@ export class AirtableComponent implements OnInit {
   }
 
   setData(id: string, data: any): void {
-    console.log(data);
-
     this.idDataUploadImage = id;
   }
 
@@ -215,21 +207,17 @@ export class AirtableComponent implements OnInit {
     return this.httpServerService.uploadImage(formData).subscribe(data => {
       if (data && data.success) {
         this.updateImageById(this.idDataUploadImage, data.Image);
-        this.message.error(`Tải hình ảnh lên thành công!`);
+        this.message.success(`Tải hình ảnh lên thành công!`);
       } else {
         this.message.error(`Tải hình ảnh lên thất bại!`);
       }
-    },
-    error => { console.log(error); });
+    });
   }
 
   makeFilterImages(): void {
     let images: any[] = [];
     let urlImages: string[] = [];
     this.filterImages = [];
-
-    console.log(this.listOfData);
-    
 
     this.listOfData.forEach(item => {
       urlImages = [];
@@ -248,7 +236,6 @@ export class AirtableComponent implements OnInit {
   }
 
   makeFilterNotes(): void {
-    console.log(this.listOfData);
     this.filterNotes = [];
     this.filterAddNotes = [];
 
@@ -292,11 +279,11 @@ export class AirtableComponent implements OnInit {
             this.listOfData = [];
           }
         },
-        error => { 
-          this.message.error("Không tìm thấy dữ liệu");
-          this.listOfData = []; 
-          this.visibleDropdownSearch = false;
-      });
+          error => {
+            this.message.error("Không tìm thấy dữ liệu");
+            this.listOfData = [];
+            this.visibleDropdownSearch = false;
+          });
 
     } else {
       Object.values(this.validateForm.controls).forEach(control => {
@@ -324,8 +311,6 @@ export class AirtableComponent implements OnInit {
 
   handleSubmit(id_data: number): void {
     const content = this.filterAddNotes[id_data];
-    console.log(content);
-
     if (!content) {
       return;
     }
@@ -361,16 +346,13 @@ export class AirtableComponent implements OnInit {
     this.currentStatus = data.Status;
     this.currentRecord = data;
     this.isVisibleModalImage = true;
-
-    console.log(this.filterStatus);
-    console.log(this.currentStatus);
   }
 
   handleCancelModalImage(): void {
     this.isVisibleModalImage = false;
   }
 
-  viewPhoneNote(data: any): void {    
+  viewPhoneNote(data: any): void {
     if (data.Phone.indexOf("*") >= 0) {
       this.httpServerService.viewPhoneNumber(data.id_name_project, data.id)
         .subscribe(res => {
@@ -389,6 +371,7 @@ export class AirtableComponent implements OnInit {
   }
 
   reloadData(): void {
+    this.searchValue = [];    
     this.loadDataFromServer(this.pageIndex, this.pageSize, null, null, []);
   }
 
@@ -399,5 +382,35 @@ export class AirtableComponent implements OnInit {
         this.message.success("Thay đổi trạng thái thành công!")
       }
     });
+  }
+
+  makeSearchValue(): void {
+    let values = this.validateForm.value;
+    let tags: any[] = [];
+
+    this.controls.forEach((item: any) => {
+      switch (item.type) {
+        case 'select':
+          if (values[item.id]) {
+            tags.push({ id: item.id, value: item.name + ': ' + this.getValueById(item.valueSelect, values[item.id]) });
+          }
+          break;
+        default:
+          if (values[item.id]) {
+            tags.push({ id: item.id, value: item.name + ': ' + values[item.id] });
+          }
+          break;
+      }
+    })
+
+    this.searchValue = tags;
+  }
+
+  removeSearchValue(tag: any): void {
+    this.searchValue = this.searchValue.filter(item => item.id !== tag.id);
+  }
+
+  myFunction(): void {
+    document.getElementById("myDropdown")?.classList.toggle("show");
   }
 }

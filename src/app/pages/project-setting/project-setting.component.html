@@ -1,5 +1,5 @@
 <nz-tabset>
-  <nz-tab nzTitle="Cài đặt loại dự án">
+  <nz-tab nzTitle="Cài đặt loại dự án" (nzClick)="loadDataTypeProject()">
     <form
       nz-form
       [formGroup]="validateFormTypeProject"
@@ -40,7 +40,9 @@
       <nz-table
         #editTypeProjectRowTable
         nzBordered
-        [nzData]="listOfTypeProject"
+        [nzData]="listOfDataTypeProject"
+        [nzSize]="'middle'"
+        [nzPageSize]="18"
         nzTableLayout="fixed"
         [nzScroll]="{ y: '450px' }"
         [nzLoading]="loadingData"
@@ -48,7 +50,16 @@
         <thead>
           <tr>
             <th [nzAlign]="'center'" nzWidth="10%">Trạng thái</th>
-            <th [nzAlign]="'center'" nzWidth="40%">Loại dự án</th>
+            <th [nzAlign]="'center'" nzWidth="40%" nzCustomFilter>
+              Loại dự án
+              <nz-filter-trigger
+                [(nzVisible)]="visibleSearchTypeProject"
+                [nzActive]="searchTypeProjectValue.length > 0"
+                [nzDropdownMenu]="menuSearchTypeProject"
+              >
+                <span nz-icon nzType="search"></span>
+              </nz-filter-trigger>
+            </th>
             <th [nzAlign]="'center'" nzWidth="40%">Ghi chú</th>
             <th [nzAlign]="'center'">Hành động</th>
           </tr>
@@ -61,10 +72,14 @@
                 else editTypeProjectTemplate
               "
             >
-              <td [nzAlign]="'center'">{{ data.active === 1 ? "Yes" : "No" }}</td>
+              <td [nzAlign]="'center'">
+                {{ data.active === 1 ? "Yes" : "No" }}
+              </td>
               <td [nzAlign]="'center'">{{ data.type }}</td>
               <td [nzAlign]="'center'">{{ data.note }}</td>
-              <td [nzAlign]="'center'"  ><a (click)="startEditTypeProject(data.id)">Chỉnh sửa</a></td>
+              <td [nzAlign]="'center'">
+                <a (click)="startEditTypeProject(data.id)">Chỉnh sửa</a>
+              </td>
             </ng-container>
             <ng-template #editTypeProjectTemplate>
               <td [nzAlign]="'center'">
@@ -122,7 +137,7 @@
       </nz-table>
     </div>
   </nz-tab>
-  <nz-tab nzTitle="Cài đặt tên dự án">
+  <nz-tab nzTitle="Cài đặt tên dự án" (nzClick)="loadDataNameProject()">
     <form
       nz-form
       [formGroup]="validateFormNameProject"
@@ -154,9 +169,7 @@
             <nz-form-label [nzFor]="control.id">{{
               control.name
             }}</nz-form-label>
-            <nz-form-control
-              nzErrorTip="Input is required!"
-            >
+            <nz-form-control nzErrorTip="Input is required!">
               <nz-select
                 [formControlName]="control.id"
                 [attr.id]="control.id"
@@ -184,7 +197,9 @@
       <nz-table
         #editNameProjectRowTable
         nzBordered
-        [nzData]="listOfNameProject"
+        [nzData]="listOfDataNameProject"
+        [nzSize]="'middle'"
+        [nzPageSize]="18"
         nzTableLayout="fixed"
         [nzScroll]="{ y: '450px' }"
         [nzLoading]="loadingData"
@@ -192,7 +207,16 @@
         <thead>
           <tr>
             <th [nzAlign]="'center'" nzWidth="10%">Trạng thái</th>
-            <th [nzAlign]="'center'" nzWidth="25%">Tên dự án</th>
+            <th [nzAlign]="'center'" nzWidth="25%" nzCustomFilter>
+              Tên dự án
+              <nz-filter-trigger
+                [(nzVisible)]="visibleSearchNameProject"
+                [nzActive]="searchNameProjectValue.length > 0"
+                [nzDropdownMenu]="menuSearchNameProject"
+              >
+                <span nz-icon nzType="search"></span>
+              </nz-filter-trigger>
+            </th>
             <th [nzAlign]="'center'" nzWidth="25%">Loại dự án</th>
             <th [nzAlign]="'center'" nzWidth="25%">Ghi chú</th>
             <th [nzAlign]="'center'">Hành động</th>
@@ -206,11 +230,17 @@
                 else editNameProjectTemplate
               "
             >
-              <td [nzAlign]="'center'">{{ data.active === 1 ? "Yes" : "No" }}</td>              
+              <td [nzAlign]="'center'">
+                {{ data.active === 1 ? "Yes" : "No" }}
+              </td>
               <td [nzAlign]="'center'">{{ data.name_project }}</td>
-              <td [nzAlign]="'center'">{{ getValueById(this.filterTypeProject, data.id_type_project) }}</td>
+              <td [nzAlign]="'center'">
+                {{ getValueById(this.filterTypeProject, data.id_type_project) }}
+              </td>
               <td [nzAlign]="'center'">{{ data.note }}</td>
-              <td [nzAlign]="'center'"><a (click)="startEditNameProject(data.id)">Chỉnh sửa</a></td>
+              <td [nzAlign]="'center'">
+                <a (click)="startEditNameProject(data.id)">Chỉnh sửa</a>
+              </td>
             </ng-container>
             <ng-template #editNameProjectTemplate>
               <td [nzAlign]="'center'">
@@ -231,13 +261,16 @@
                 />
               </td>
               <td>
-                <input
-                  type="text"
-                  nz-input
-                  [(ngModel)]="
-                    editCacheNameProject[data.id].data.id_type_project
-                  "
-                />
+                <nz-select
+                  ngModel="{{ editCacheNameProject[data.id].data.id_type_project }}"
+                  (ngModelChange)="changeTypeProject(data.id, $event)"
+                >
+                  <nz-option
+                    *ngFor="let opt of this.filterTypeProject"
+                    nzValue="{{ opt.value }}"
+                    nzLabel="{{ opt.text }}"
+                  ></nz-option>
+                </nz-select>
               </td>
               <td>
                 <input
@@ -278,3 +311,52 @@
     </div>
   </nz-tab>
 </nz-tabset>
+<nz-dropdown-menu #menuSearchTypeProject="nzDropdownMenu">
+  <div class="ant-table-filter-dropdown">
+    <div class="search-box">
+      <input
+        type="text"
+        nz-input
+        placeholder="Tìm loại dự án"
+        [(ngModel)]="searchTypeProjectValue"
+      />
+      <button
+        nz-button
+        nzSize="small"
+        nzType="primary"
+        (click)="searchTypeProject()"
+        class="search-button"
+      >
+        Tìm
+      </button>
+      <button nz-button nzSize="small" (click)="resetTypeProject()">
+        Reset
+      </button>
+    </div>
+  </div>
+</nz-dropdown-menu>
+
+<nz-dropdown-menu #menuSearchNameProject="nzDropdownMenu">
+  <div class="ant-table-filter-dropdown">
+    <div class="search-box">
+      <input
+        type="text"
+        nz-input
+        placeholder="Tìm loại dự án"
+        [(ngModel)]="searchNameProjectValue"
+      />
+      <button
+        nz-button
+        nzSize="small"
+        nzType="primary"
+        (click)="searchNameProject()"
+        class="search-button"
+      >
+        Tìm
+      </button>
+      <button nz-button nzSize="small" (click)="resetNameProject()">
+        Reset
+      </button>
+    </div>
+  </div>
+</nz-dropdown-menu>

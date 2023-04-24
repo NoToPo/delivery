@@ -33,6 +33,7 @@ export class ProjectSettingComponent implements OnInit {
   typeOfTypeProject = '';
   editCacheTypeProject: { [key: string]: { edit: boolean; data: any } } = {};
   listOfTypeProject: any[] = [];
+  listOfDataTypeProject: any[] = [];
 
   idAddNameProject = "ADD_NAME_PROJECT";
   projecTypeOfNameProject = '';
@@ -40,6 +41,13 @@ export class ProjectSettingComponent implements OnInit {
   noteOfNameProject = '';
   editCacheNameProject: { [key: string]: { edit: boolean; data: any } } = {};
   listOfNameProject: any[] = [];
+  listOfDataNameProject: any[] = [];
+
+  searchTypeProjectValue = '';
+  visibleSearchTypeProject = false;
+
+  searchNameProjectValue = '';
+  visibleSearchNameProject = false;
 
   constructor(private httpServerService: HttpServerService,
     private message: NzMessageService,
@@ -78,7 +86,6 @@ export class ProjectSettingComponent implements OnInit {
     submitFormNameProject(): void {
       if (this.validateFormNameProject.valid) {
         let values = this.validateFormNameProject.value;
-        console.log(values);
         
         this.httpServerService.createNameProject(values.ProjectName, values.Note, values.ProjectType)
         .subscribe(data => {
@@ -152,7 +159,6 @@ export class ProjectSettingComponent implements OnInit {
   saveEditNameProject(id: string): void {
     const index = this.listOfNameProject.findIndex(item => item.id === id);
     Object.assign(this.listOfNameProject[index], this.editCacheNameProject[id].data);
-    console.log(this.listOfNameProject[index]);
     
     this.updateAdminNameProject(this.listOfNameProject[index]);
     this.editCacheNameProject[id].edit = false;
@@ -171,13 +177,48 @@ export class ProjectSettingComponent implements OnInit {
     this.httpServerService.updateNameProject(data.id, data.name_project, data.note, data.id_type_project, data.active)
       .subscribe(data => {
         if (data.success) {
-          this.message.success("Tạo thành công!");
+          this.message.success("Cập nhật thành công!");
         }
       });
   }
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadingData = true;
+    this.loadDataTypeProject();
+    this.loadDataNameProject();
+    this.initData();
+    this.loadingData = false;
+  }
+
+  loadDataTypeProject(): void {
+    this.httpServerService.getAdminTypeProject()
+      .subscribe(data => {
+        if (data.success) {
+          this.filterTypeProject = [];
+          data.result.forEach((element: any) => {
+            this.filterTypeProject.push({ text: element.note, value: element.id });
+          })
+          this.listOfTypeProject = data.result;
+          this.listOfDataTypeProject = [...this.listOfTypeProject]
+          this.updateCacheTypeProject();
+        }
+      });
+  }
+
+  loadDataNameProject(): void {
+    this.loadDataTypeProject();
+
+    this.httpServerService.getAdminNameProject()
+      .subscribe(data => {
+        if (data.success) {
+          this.listOfNameProject = data.result;
+          this.listOfDataNameProject = [...this.listOfNameProject]
+          this.updateCacheNameProject();
+        }
+      });
+  }
+
+  initData(): void {
     this.validateFormTypeProject = this.fb.group({});
     for (let i = 0; i < this.controlsTypeProject.length; i++) {
       this.controlArrayTypeProject.push({ index: i, show: true, id: this.controlsTypeProject[i].id, name: this.controlsTypeProject[i].name, placeholder: this.controlsTypeProject[i].placeholder });
@@ -202,34 +243,11 @@ export class ProjectSettingComponent implements OnInit {
     });
   }
 
-  loadData(): void {
-    this.loadingData = true;
-    this.httpServerService.getAdminTypeProject()
-      .subscribe(data => {
-        if (data.success) {
-          data.result.forEach((element: any) => {
-            this.filterTypeProject.push({ text: element.note, value: element.id });
-          })
-          this.listOfTypeProject = data.result;
-          this.updateCacheTypeProject();
-        }
-      });      
-
-    this.httpServerService.getAdminNameProject()
-      .subscribe(data => {
-        if (data.success) {
-          this.listOfNameProject = data.result;
-          this.updateCacheNameProject();
-        }
-      });
-      this.loadingData = false;
-  }
-
   updateAdminTypeProject(data: any): void {
     this.httpServerService.updateTypeProject(data.type, data.note, data.active, data.id)
       .subscribe(data => {
         if (data.success) {
-          this.message.success("Tạo thành công!");
+          this.message.success("Cập nhật thành công!");
         }
       });
   }
@@ -240,5 +258,29 @@ export class ProjectSettingComponent implements OnInit {
 
   getValueById(list: any[], id: string): string {
     return list.filter(x => x.value == id)[0]?.text;
+  }
+
+  resetTypeProject(): void {
+    this.searchTypeProjectValue = '';
+    this.searchTypeProject();
+  }
+
+  searchTypeProject(): void {
+    this.visibleSearchTypeProject = false;
+    this.listOfDataTypeProject = this.listOfTypeProject.filter((item: any) => item.type.toLowerCase().indexOf(this.searchTypeProjectValue.toLowerCase()) !== -1);
+  }
+
+  resetNameProject(): void {
+    this.searchNameProjectValue = '';
+    this.searchNameProject();
+  }
+
+  searchNameProject(): void {
+    this.visibleSearchNameProject = false;
+    this.listOfDataNameProject = this.listOfNameProject.filter((item: any) => item.name_project.toLowerCase().indexOf(this.searchNameProjectValue.toLowerCase()) !== -1);
+  }
+
+  changeTypeProject(id: string, value: string): void {
+    this.editCacheNameProject[id].data.id_type_project = value;
   }
 }

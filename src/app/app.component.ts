@@ -110,7 +110,8 @@ export class AppComponent implements OnInit {
           else {
             this.error(res.result);
           }
-        });
+        },
+        error => { this.error(error.error.result); });
     } else {
       Object.values(this.validateFormSignUp.controls).forEach(control => {
         if (control.invalid) {
@@ -131,7 +132,7 @@ export class AppComponent implements OnInit {
 
   error(message: string): void {
     this.modal.error({
-      nzTitle: 'Error',
+      nzTitle: 'Lỗi',
       nzContent: message,
       nzCentered: true
     });
@@ -139,7 +140,7 @@ export class AppComponent implements OnInit {
 
   success(message: string): void {
     this.modal.success({
-      nzTitle: 'Success',
+      nzTitle: 'Thành công',
       nzContent: message,
       nzCentered: true
     });

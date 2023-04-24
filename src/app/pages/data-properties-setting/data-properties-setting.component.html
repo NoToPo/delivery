@@ -1,5 +1,48 @@
-<button nz-button [nzType]="'primary'" (click)="showAddNew()">Thêm mới</button>
-<br /><br />
+<div nz-row class="ant-advanced-search-form">
+  <div nz-col nzFlex="5">
+    <nz-button-group>
+      <button
+        class="value-search"
+        nz-dropdown
+        nzTrigger="click"
+        [nzDropdownMenu]="menu"
+        [nzClickHide]="false"
+        [(nzVisible)]="visibleDropdownSearch"
+      >
+        <nz-tag *ngFor="let tag of searchValue" style="margin: 5px">{{
+          tag.value
+        }}</nz-tag>
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        (click)="openDropdownSearch()"
+      >
+        <span nz-icon nzType="search"></span>
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        style="margin-left: 5px; border-radius: 0 0 0 0"
+        (click)="reloadData()"
+      >
+        <span nz-icon nzType="reload"></span>
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        (click)="showAddNew()"
+        style="margin-left: 5px; border-radius: 0 0 0 0"
+      >
+        Thêm mới
+      </button>
+    </nz-button-group>
+  </div>
+</div>
+<br />
 <div class="search-result-list">
   <div class="search-result-list">
     <nz-table
@@ -9,8 +52,13 @@
       nzTableLayout="fixed"
       [nzScroll]="{ x: '180vw', y: '600px' }"
       [nzSize]="'middle'"
-      [nzPageSize]="15"
       [nzLoading]="loadingData"
+      [nzTotal]="total"
+      [nzPageSize]="pageSize"
+      [nzPageIndex]="pageIndex"
+      nzShowSizeChanger
+      [nzFrontPagination]="false"
+      (nzQueryParams)="onQueryParamsChange($event)"
     >
       <thead>
         <tr>
@@ -421,3 +469,72 @@
     </div>
   </ng-container>
 </nz-modal>
+
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <form
+    nz-form
+    [formGroup]="validateFormSearch"
+    class="ant-advanced-search-form-dropdown"
+    (ngSubmit)="submitFormSearch()"
+  >
+    <div
+      nz-col
+      [nzSpan]="24"
+      *ngFor="let control of controlArraySearch"
+      [hidden]="!control.show"
+      [ngSwitch]="control.type"
+    >
+      <nz-form-item *ngSwitchCase="'default'">
+        <nz-form-label [nzSm]="6" [nzXs]="24" [nzFor]="control.id">{{
+          control.name
+        }}</nz-form-label>
+        <nz-form-control
+          [nzSm]="18"
+          [nzXs]="24"
+          nzErrorTip="Vui lòng nhập {{ control.name }}!"
+        >
+          <input
+            nz-input
+            placeholder="{{ control.placeholder }}"
+            [formControlName]="control.id"
+            [attr.id]="control.id"
+            (change)="makeSearchValue()"
+          />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item *ngSwitchCase="'select'">
+        <nz-form-label [nzSm]="6" [nzXs]="24" [nzFor]="control.id">{{
+          control.name
+        }}</nz-form-label>
+        <nz-form-control
+          [nzSm]="18"
+          [nzXs]="24"
+          nzErrorTip="Vui lòng chọn {{ control.name }}!"
+        >
+          <nz-select
+            [nzShowSearch]="control.searchable"
+            [formControlName]="control.id"
+            [attr.id]="control.id"
+            nzPlaceHolder="{{ control.placeholder }}"
+            (ngModelChange)="makeSearchValue()"
+          >
+            <nz-option
+              *ngFor="let opt of control.valueSelect"
+              nzValue="{{ opt.value }}"
+              nzLabel="{{ opt.text }}"
+            ></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="24" style="text-align: right">
+      <nz-form-item>
+        <nz-form-control>
+          <div class="search-area">
+            <button nz-button [nzType]="'primary'">Tìm kiếm</button>
+          </div>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </form>
+</nz-dropdown-menu>
