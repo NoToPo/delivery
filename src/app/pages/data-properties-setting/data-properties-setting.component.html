@@ -99,7 +99,9 @@
           <td>{{ data.Address }}</td>
           <td [nzAlign]="'center'">{{ data.House_Code }}</td>
           <td [nzAlign]="'center'">
-            {{ getValueById(this.filterStatus, data.Status) }}
+            <nz-tag [nzColor]="getColorStatusById(this.filterStatus, data.Status)">
+              {{ getValueById(this.filterStatus, data.Status) }}
+            </nz-tag>
           </td>
           <td [nzAlign]="'center'">
             <nz-badge
@@ -356,9 +358,18 @@
           <nz-descriptions-item nzSpan="3" nzTitle="Số điện thoại">{{
             currentRecord.Phone
           }}</nz-descriptions-item>
-          <nz-descriptions-item nzSpan="3" nzTitle="Trạng thái">{{
-            getValueById(this.filterStatus, currentRecord.Status)
-          }}</nz-descriptions-item>
+          <nz-descriptions-item nzSpan="3" nzTitle="Trạng thái">
+            <nz-select
+              ngModel="{{ currentRecord.Status }}"
+              (ngModelChange)="changeStatus($event)"
+            >
+              <nz-option
+                *ngFor="let opt of this.filterStatus"
+                nzValue="{{ opt.value }}"
+                nzLabel="{{ opt.text }}"
+              ></nz-option>
+            </nz-select>
+          </nz-descriptions-item>
         </nz-descriptions>
       </div>
       <div nz-col nzSpan="16">

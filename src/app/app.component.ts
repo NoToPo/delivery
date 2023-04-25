@@ -10,9 +10,10 @@ import { NzModalService } from 'ng-zorro-antd/modal';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
+
 export class AppComponent implements OnInit {
   title = 'Real-Estate-UI';
-  isCollapsed = false;
+  isCollapsed = true;
 
   // ChangePassword properties
   isVisibleChangePassword = false;
@@ -29,7 +30,8 @@ export class AppComponent implements OnInit {
     private router: Router,
     private fb: UntypedFormBuilder,
     public httpServerService: HttpServerService,
-    private modal: NzModalService) { }
+    private modal: NzModalService) {}
+
 
   handleCancelChangePassword(): void {
     this.isVisibleChangePassword = false;
@@ -111,7 +113,7 @@ export class AppComponent implements OnInit {
             this.error(res.result);
           }
         },
-        error => { this.error(error.error.result); });
+          error => { this.error(error.error.result); });
     } else {
       Object.values(this.validateFormSignUp.controls).forEach(control => {
         if (control.invalid) {

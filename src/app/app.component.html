@@ -3,7 +3,6 @@
     class="menu-sidebar"
     nzCollapsible
     nzWidth="256px"
-    nzBreakpoint="md"
     [(nzCollapsed)]="isCollapsed"
     [nzTrigger]="null"
   >
@@ -19,7 +18,7 @@
       nzMode="inline"
       [nzInlineCollapsed]="isCollapsed"
     >
-      <li nz-submenu nzOpen nzTitle="Trang chủ" nzIcon="home">
+      <li nz-submenu [nzOpen]="!isCollapsed" nzTitle="Trang chủ" nzIcon="home">
         <ul>
           <li nz-menu-item nzMatchRouter>
             <a href="/table">Quản lý khách hàng</a>
@@ -29,25 +28,37 @@
       <li
         *ngIf="
           this.authService.isLoggedIn() &&
-          this.authService.getUserRole() == 'AdminRole'
+          (this.authService.getUserRole() == 'AdminRole' ||
+            this.authService.getUserRole() == 'ModRole')
         "
         nz-submenu
-        nzOpen
+        [nzOpen]="!isCollapsed"
         nzTitle="Bảng điều khiển"
         nzIcon="dashboard"
       >
-        <ul>
+        <ul
+          *ngIf="
+            this.authService.isLoggedIn() &&
+            (this.authService.getUserRole() == 'AdminRole' ||
+              this.authService.getUserRole() == 'ModRole')
+          "
+        >
           <li nz-menu-item nzMatchRouter>
             <a href="/data-properties-setting">Cài đặt dữ liệu</a>
           </li>
         </ul>
-        <ul>
+        <ul
+          *ngIf="
+            this.authService.isLoggedIn() &&
+            this.authService.getUserRole() == 'AdminRole'
+          "
+        >
           <li nz-menu-item nzMatchRouter>
             <a href="/project-setting">Cài đặt dự án</a>
           </li>
         </ul>
       </li>
-      <li nz-submenu nzOpen nzTitle="Đăng nhập" nzIcon="form">
+      <li nz-submenu [nzOpen]="!isCollapsed" nzTitle="Đăng nhập" nzIcon="form">
         <ul>
           <li
             *ngIf="
@@ -63,7 +74,9 @@
           <li
             *ngIf="
               this.authService.isLoggedIn() &&
-              this.authService.getUserRole() == 'AdminRole'
+              (this.authService.getUserRole() == 'UserRole' ||
+              this.authService.getUserRole() == 'ModRole' ||
+              this.authService.getUserRole() == 'AdminRole')
             "
             nz-menu-item
             nzMatchRouter

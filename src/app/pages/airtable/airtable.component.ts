@@ -20,7 +20,7 @@ export class AirtableComponent implements OnInit {
   listOfData: any[] = [];
   loadingData = true;
   uploading = false;
-  pageSize = 18;
+  pageSize = 20;
   pageIndex = 1;
   filterFurniture: any[] = [];
   filterStatus: any[] = [];
@@ -106,6 +106,10 @@ export class AirtableComponent implements OnInit {
     return list.filter(x => x.value == id)[0]?.text;
   }
 
+  getColorStatusById(list: any[], id: string): string {
+    return list.filter(x => x.value == id)[0]?.color;
+  }
+
   public loadListOfColumn(): void {
     this.httpServerService.getFurnitureList().subscribe(data => {
       if (data && data.success) {
@@ -116,9 +120,9 @@ export class AirtableComponent implements OnInit {
     });
 
     this.httpServerService.getStatusList().subscribe(data => {
-      if (data && data.success) {
+      if (data && data.success) {        
         data.result.forEach((element: any) => {
-          this.filterStatus.push({ text: element.status_name, value: element.id });
+          this.filterStatus.push({ text: element.status_name, value: element.id, color: element.color });
         })
       }
     });

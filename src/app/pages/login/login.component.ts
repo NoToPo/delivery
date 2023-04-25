@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -12,6 +12,10 @@ export class LoginComponent implements OnInit {
   isVisible = false;
   isOkLoading = false;  
   isVisibleMiddle = true;
+
+  @HostListener('window:keyup.enter') pressedEnter() {
+    this.handleOk();
+  }
 
   constructor(private fb: UntypedFormBuilder,
     private authService: AuthService) {}

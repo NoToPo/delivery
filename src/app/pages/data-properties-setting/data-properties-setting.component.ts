@@ -26,7 +26,7 @@ export class DataPropertiesSettingComponent {
   total = 1;
   loadingData = true;
   uploading = false;
-  pageSize = 18;
+  pageSize = 20;
   pageIndex = 1;
   idDataUploadImage: any;
   filterImages: any[] = [];
@@ -176,7 +176,7 @@ export class DataPropertiesSettingComponent {
     this.httpServerService.getStatusList().subscribe(data => {
       if (data && data.success) {
         data.result.forEach((element: any) => {
-          this.filterStatus.push({ text: element.status_name, value: element.id });
+          this.filterStatus.push({ text: element.status_name, value: element.id, color: element.color });
         })
       }
     });
@@ -241,6 +241,10 @@ export class DataPropertiesSettingComponent {
 
   getValueById(list: any[], id: string): string {
     return list.filter(x => x.value == id)[0]?.text;
+  }
+
+  getColorStatusById(list: any[], id: string): string {
+    return list.filter(x => x.value == id)[0]?.color;
   }
 
   getNotesByIdData(idData: string): Array<any> {
@@ -495,5 +499,14 @@ export class DataPropertiesSettingComponent {
     this.searchValue = [];
 
     this.loadDataFromServer(this.pageIndex, this.pageSize, null);
+  }
+
+  changeStatus(value: string): void {
+    this.httpServerService.setStatus(this.currentRecord.id, value).subscribe(res => {
+      if (res && res?.success === true) {
+        this.listOfData.find(elem => elem.id === this.currentRecord.id).Status = value;
+        this.message.success("Thay đổi trạng thái thành công!")
+      }
+    });
   }
 }

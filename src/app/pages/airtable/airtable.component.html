@@ -13,10 +13,21 @@
           tag.value
         }}</nz-tag>
       </button>
-      <button nz-button nzType="primary" nzSize="large" (click)="openDropdownSearch()">
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        (click)="openDropdownSearch()"
+      >
         <span nz-icon nzType="search"></span>
       </button>
-      <button nz-button nzType="primary" nzSize="large" style="margin-left: 5px; border-radius: 0 0 0 0" (click)="reloadData()">
+      <button
+        nz-button
+        nzType="primary"
+        nzSize="large"
+        style="margin-left: 5px; border-radius: 0 0 0 0"
+        (click)="reloadData()"
+      >
         <span nz-icon nzType="reload"></span>
       </button>
     </nz-button-group>
@@ -79,7 +90,10 @@
         <td>{{ data.Address }}</td>
         <td [nzAlign]="'center'">{{ data.House_Code }}</td>
         <td [nzAlign]="'center'">
-          {{ getValueById(this.filterStatus, data.Status) }}
+          <nz-tag
+            [nzColor]="getColorStatusById(this.filterStatus, data.Status)"
+            >{{ getValueById(this.filterStatus, data.Status) }}
+          </nz-tag>
         </td>
         <td [nzAlign]="'center'">
           <nz-badge
