@@ -25,12 +25,15 @@ export class AppComponent implements OnInit {
   result = '';
   showResult = false;
   format = 'dd/MM/yyyy';
+  userInfor: any;
 
   constructor(public authService: AuthService,
     private router: Router,
     private fb: UntypedFormBuilder,
     public httpServerService: HttpServerService,
-    private modal: NzModalService) {}
+    private modal: NzModalService) {
+      this.userInfor = authService.getInfoUser();      
+    }
 
 
   handleCancelChangePassword(): void {

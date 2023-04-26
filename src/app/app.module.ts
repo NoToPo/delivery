@@ -36,6 +36,7 @@ import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzCardModule } from 'ng-zorro-antd/card';
 
 import { LoginComponent } from './pages/login/login.component';
 import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.component';
@@ -86,7 +87,8 @@ registerLocaleData(en);
     NzBadgeModule,
     NzDescriptionsModule,
     NzDrawerModule,
-    NzTagModule
+    NzTagModule,
+    NzCardModule
   ],
   providers: [
     { provide: NZ_I18N, useValue: en_US },

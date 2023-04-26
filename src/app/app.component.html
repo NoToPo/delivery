@@ -75,8 +75,8 @@
             *ngIf="
               this.authService.isLoggedIn() &&
               (this.authService.getUserRole() == 'UserRole' ||
-              this.authService.getUserRole() == 'ModRole' ||
-              this.authService.getUserRole() == 'AdminRole')
+                this.authService.getUserRole() == 'ModRole' ||
+                this.authService.getUserRole() == 'AdminRole')
             "
             nz-menu-item
             nzMatchRouter
@@ -114,6 +114,15 @@
             [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
           ></span>
         </span>
+        <span style="right: 30px; position: absolute; padding-top: 10px; display: inline-flex;">
+          <span style="line-height: normal; padding-top: 5px; padding-right: 10px;">
+            <nz-avatar style="background-color:#87d068;" nzIcon="user"></nz-avatar>
+          </span>
+          <span style="line-height: normal;">
+            <div style="font-weight: bold;">{{userInfor.first_name + ' ' + userInfor.last_name}}</div>
+            <div style="font-style: italic;">{{userInfor.email}}</div>
+          </span>
+        </span>
       </div>
     </nz-header>
     <nz-content>
@@ -143,7 +152,12 @@
           [nzXs]="24"
           nzErrorTip="E-mail không hợp lệ!"
         >
-          <input nz-input formControlName="email" id="email" />
+          <input
+            nz-input
+            formControlName="email"
+            id="email"
+            [value]="userInfor.email"
+          />
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>

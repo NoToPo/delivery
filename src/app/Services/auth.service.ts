@@ -10,7 +10,7 @@ import { HttpServerService } from './http-server.service';
 })
 export class AuthService {
   constructor(private router: Router,
-    private httpServer: HttpServerService,    
+    private httpServer: HttpServerService,
     private message: NzMessageService,) { }
 
   public setToken(token: string) {
@@ -28,6 +28,22 @@ export class AuthService {
 
     const expirationDate = jwtHelper.getTokenExpirationDate(token);
     const isExpired = jwtHelper.isTokenExpired(token);
+  }
+
+  public setInfoUser(data: any) {
+    localStorage.setItem('userEmail', data.email);
+    localStorage.setItem('userFirstName', data.first_name);
+    localStorage.setItem('userLastName', data.last_name);
+  }
+
+  public removeInfoUser() {
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userFirstName');
+    localStorage.removeItem('userLastName');
+  }
+
+  public getInfoUser(): any {
+    return { email: localStorage.getItem('userEmail'), first_name: localStorage.getItem('userFirstName'), last_name: localStorage.getItem('userLastName') };
   }
 
   public removeToken() {
@@ -53,14 +69,16 @@ export class AuthService {
   public logout() {
     this.removeToken();
     this.removeUserRole();
+    this.removeInfoUser();
   }
 
   public login(username: string, password: string, backUrl: string): void {
     this.httpServer.Login(username, password).subscribe((data: any) => {
       if (data && data.status === true) {
         const token = data?.token;
-        if (!!username && !!password && !!token){
+        if (!!username && !!password && !!token) {
           this.setToken(token);
+          this.setInfoUser(data);
           this.router.navigate([backUrl]);
         }
         this.message.success('Đăng nhập thành công!');
@@ -69,9 +87,9 @@ export class AuthService {
         this.login(username, password, backUrl);
       }
     },
-    erorr => {
-      this.message.error('Đăng nhập thất bại!');
-    });
+      erorr => {
+        this.message.error('Đăng nhập thất bại!');
+      });
   }
 
   private GetUserRole(decodedToken: any): string {
