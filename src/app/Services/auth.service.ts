@@ -30,7 +30,7 @@ export class AuthService {
     const isExpired = jwtHelper.isTokenExpired(token);
   }
 
-  public setInfoUser(data: any) {
+  public setInfoUser(data: any) {    
     localStorage.setItem('userEmail', data.email);
     localStorage.setItem('userFirstName', data.first_name);
     localStorage.setItem('userLastName', data.last_name);

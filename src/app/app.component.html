@@ -119,8 +119,8 @@
             <nz-avatar style="background-color:#87d068;" nzIcon="user"></nz-avatar>
           </span>
           <span style="line-height: normal;">
-            <div style="font-weight: bold;">{{userInfor.first_name + ' ' + userInfor.last_name}}</div>
-            <div style="font-style: italic;">{{userInfor.email}}</div>
+            <div style="font-weight: bold;" *ngIf="userInfor?.first_name || userInfor?.last_name">{{userInfor.first_name + ' ' + userInfor.last_name}}</div>
+            <div style="font-style: italic;" *ngIf="userInfor?.email">{{userInfor.email}}</div>
           </span>
         </span>
       </div>

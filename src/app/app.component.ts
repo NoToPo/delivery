@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterContentChecked, AfterViewInit, Component, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
@@ -11,7 +11,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
   styleUrls: ['./app.component.scss']
 })
 
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterContentChecked {
   title = 'Real-Estate-UI';
   isCollapsed = true;
 
@@ -31,13 +31,15 @@ export class AppComponent implements OnInit {
     private router: Router,
     private fb: UntypedFormBuilder,
     public httpServerService: HttpServerService,
-    private modal: NzModalService) {
-      this.userInfor = authService.getInfoUser();      
-    }
+    private modal: NzModalService) {}
 
 
   handleCancelChangePassword(): void {
     this.isVisibleChangePassword = false;
+  }
+
+  ngAfterContentChecked(): void {
+      this.userInfor = this.authService.getInfoUser();
   }
 
   logIn(): void {
