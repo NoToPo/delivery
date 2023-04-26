@@ -72,6 +72,9 @@ export class AppComponent implements OnInit, AfterContentChecked {
           } else {
             this.error(res.result);
           }
+        },
+        error => {          
+          this.error(error.error.result);
         });
     } else {
       Object.values(this.validateFormChangePassword.controls).forEach(control => {

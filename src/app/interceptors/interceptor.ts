@@ -22,7 +22,7 @@ export class Interceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(this.makeRequest(request)).pipe(
-      retryWhen((error) => {
+      retryWhen((error) => {        
         return error.pipe(
           mergeMap((error, index) => {
             if (index < maxRetries && error.status == 500) {
