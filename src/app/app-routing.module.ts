@@ -8,7 +8,7 @@ import { ProjectSettingComponent } from './pages/project-setting/project-setting
 import { DataPropertiesSettingComponent } from './pages/data-properties-setting/data-properties-setting.component';
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: '/table' },
+  { path: '', pathMatch: 'full', redirectTo: 'table' },
   { path: 'table', component: AirtableComponent, canActivate: [AuthGuard] },
   { path: 'project-setting', component: ProjectSettingComponent, canActivate: [AuthGuard] },
   { path: 'data-properties-setting', component: DataPropertiesSettingComponent, canActivate: [AuthGuard] },

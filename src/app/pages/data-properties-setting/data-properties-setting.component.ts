@@ -331,7 +331,7 @@ export class DataPropertiesSettingComponent {
   }
 
   getImageById(idData: any) {
-    return this.filterImages.find(image => image.uid === idData).urls;
+    return this.filterImages.find(image => image.uid === idData)?.urls;
   }
 
   setData(id: string, data: any): void {
@@ -352,12 +352,12 @@ export class DataPropertiesSettingComponent {
 
   countNotesByIdData(idData: string): number {
     let notes = this.getNotesByIdData(idData);
-    return notes.length;
+    return notes?.length;
   }
 
   countImagesByIdData(idData: string): number {
     let images = this.getImageById(idData);
-    return images.length;
+    return images?.length;
   }
 
   showModalNote(data: any): void {
