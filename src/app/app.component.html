@@ -7,7 +7,7 @@
     [nzTrigger]="null"
   >
     <div class="sidebar-logo">
-      <a href="/">
+      <a routerLink="/">
         <img src="https://ng.ant.design/assets/img/logo.svg" alt="logo" />
         <h1>Real Estate</h1>
       </a>
@@ -21,7 +21,7 @@
       <li nz-submenu [nzOpen]="!isCollapsed" nzTitle="Trang chủ" nzIcon="home">
         <ul>
           <li nz-menu-item nzMatchRouter>
-            <a href="/table">Quản lý khách hàng</a>
+            <a [routerLink]="['/table']">Quản lý khách hàng</a>
           </li>
         </ul>
       </li>
@@ -44,7 +44,7 @@
           "
         >
           <li nz-menu-item nzMatchRouter>
-            <a href="/data-properties-setting">Cài đặt dữ liệu</a>
+            <a [routerLink]="['/data-properties-setting']">Cài đặt dữ liệu</a>
           </li>
         </ul>
         <ul
@@ -54,7 +54,7 @@
           "
         >
           <li nz-menu-item nzMatchRouter>
-            <a href="/project-setting">Cài đặt dự án</a>
+            <a [routerLink]="['/project-setting']">Cài đặt dự án</a>
           </li>
         </ul>
       </li>

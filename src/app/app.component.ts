@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, AfterContentChecked {
   logOut(): void {
     if (this.authService.isLoggedIn()) {
       this.authService.logout();
-      window.location.reload();
+      this.router.navigate(['/login']);
     }
   }
 
